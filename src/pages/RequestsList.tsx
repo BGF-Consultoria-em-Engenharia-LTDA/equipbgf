@@ -29,7 +29,7 @@ const RequestsList: React.FC = () => {
                            equipmentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            req.purpose.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesStatus = statusFilter ? req.status === statusFilter : true;
+      const matchesStatus = statusFilter === '' || statusFilter === 'all' ? true : req.status === statusFilter;
       
       return matchesSearch && matchesStatus;
     });
