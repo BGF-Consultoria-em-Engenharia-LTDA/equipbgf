@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import { Package2, ClipboardList, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { RecentRequestsTable } from '@/components/dashboard/RecentRequestsTable';
+import { RequestsCalendar } from '@/components/dashboard/RequestsCalendar';
 import { useInventory } from '@/context/InventoryContext';
 
 const Dashboard: React.FC = () => {
@@ -29,6 +30,13 @@ const Dashboard: React.FC = () => {
       approvedRequests
     };
   }, [equipment, requests, currentUser]);
+
+  // Filter requests based on user role
+  const visibleRequests = useMemo(() => {
+    return currentUser?.role === 'admin'
+      ? requests
+      : requests.filter(r => r.userId === currentUser?.id);
+  }, [requests, currentUser]);
 
   return (
     <div className="space-y-6">
@@ -62,7 +70,11 @@ const Dashboard: React.FC = () => {
         />
       </div>
       
-      <RecentRequestsTable requests={requests} />
+      {/* Equipment Schedule Calendar */}
+      <RequestsCalendar requests={visibleRequests} />
+      
+      {/* Recent Requests Table */}
+      <RecentRequestsTable requests={visibleRequests} />
     </div>
   );
 };
