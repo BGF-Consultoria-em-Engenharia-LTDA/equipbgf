@@ -1,18 +1,28 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { PlusCircle } from 'lucide-react';
 import { useInventory } from '@/context/InventoryContext';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { User } from '@/types';
+import CreateUserForm from '@/components/users/CreateUserForm';
 
 const Users = () => {
   const { users } = useInventory();
+  const [createUserOpen, setCreateUserOpen] = useState(false);
 
   return (
     <div className="container mx-auto py-6">
-      <h1 className="text-3xl font-bold mb-6">User Management</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">User Management</h1>
+        <Button onClick={() => setCreateUserOpen(true)} className="flex items-center gap-2">
+          <PlusCircle className="h-4 w-4" />
+          Create User
+        </Button>
+      </div>
       
       <Card className="mb-6">
         <CardHeader>
@@ -40,6 +50,8 @@ const Users = () => {
           </Tabs>
         </CardContent>
       </Card>
+
+      <CreateUserForm open={createUserOpen} onOpenChange={setCreateUserOpen} />
     </div>
   );
 };

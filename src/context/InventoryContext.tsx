@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Equipment, EquipmentRequest, User } from '@/types';
 import { toast } from "@/components/ui/use-toast";
@@ -20,6 +19,7 @@ interface InventoryContextType {
   getRequestsByEquipmentId: (equipmentId: string) => EquipmentRequest[];
   getRequestsByUserId: (userId: string) => EquipmentRequest[];
   setCurrentUser: (user: User | null) => void;
+  addUser: (user: Omit<User, 'id'>) => void;
 }
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
@@ -124,6 +124,15 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     });
   };
 
+  const addUser = (newUser: Omit<User, 'id'>) => {
+    const id = Math.random().toString(36).substr(2, 9);
+    setUsers([...users, { ...newUser, id }]);
+    toast({
+      title: "User added",
+      description: `${newUser.name} has been added as a ${newUser.role}.`
+    });
+  };
+
   const getEquipmentById = (id: string) => {
     return equipment.find((item) => item.id === id);
   };
@@ -149,7 +158,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     getEquipmentById,
     getRequestsByEquipmentId,
     getRequestsByUserId,
-    setCurrentUser
+    setCurrentUser,
+    addUser
   };
 
   return (
