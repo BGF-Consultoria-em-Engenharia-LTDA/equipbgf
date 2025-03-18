@@ -48,6 +48,7 @@ export const RecentRequestsTable: React.FC<RecentRequestsTableProps> = ({
               <TableHead>Equipment</TableHead>
               <TableHead>Requested By</TableHead>
               <TableHead>Date</TableHead>
+              <TableHead>Qty</TableHead>
               <TableHead>Purpose</TableHead>
               <TableHead>Status</TableHead>
             </TableRow>
@@ -66,6 +67,7 @@ export const RecentRequestsTable: React.FC<RecentRequestsTableProps> = ({
                 <TableCell>
                   {formatDistanceToNow(new Date(request.requestDate), { addSuffix: true })}
                 </TableCell>
+                <TableCell>{request.quantity}</TableCell>
                 <TableCell className="max-w-xs truncate">
                   {request.purpose}
                 </TableCell>
@@ -78,7 +80,7 @@ export const RecentRequestsTable: React.FC<RecentRequestsTableProps> = ({
             ))}
             {limitedRequests.length === 0 && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-4 text-gray-500">
+                <TableCell colSpan={6} className="text-center py-4 text-gray-500">
                   No recent requests
                 </TableCell>
               </TableRow>
