@@ -53,20 +53,12 @@ const RequestsList: React.FC = () => {
   };
 
   const openRequestForm = () => {
-    if (equipment.length > 0) {
-      setSelectedEquipment(equipment[0].id);
-    }
     setIsRequestFormOpen(true);
   };
 
   const closeRequestForm = () => {
     setIsRequestFormOpen(false);
   };
-
-  const selectedEquipmentObject = useMemo(() => {
-    if (!selectedEquipment) return null;
-    return equipment.find(item => item.id === selectedEquipment) || null;
-  }, [selectedEquipment, equipment]);
 
   return (
     <div className="space-y-6">
@@ -95,7 +87,7 @@ const RequestsList: React.FC = () => {
       />
 
       <RequestForm 
-        equipment={selectedEquipmentObject} 
+        equipment={null}
         isOpen={isRequestFormOpen} 
         onClose={closeRequestForm} 
       />

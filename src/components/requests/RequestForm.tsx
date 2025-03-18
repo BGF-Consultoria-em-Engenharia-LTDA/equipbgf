@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar as CalendarIcon, Plus, X } from 'lucide-react';
 import { 
   Dialog, 
   DialogContent, 
@@ -22,7 +22,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue 
+} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import { toast } from "@/components/ui/use-toast";
 
 interface RequestFormProps {
   equipment: Equipment | null;
@@ -30,35 +39,69 @@ interface RequestFormProps {
   onClose: () => void;
 }
 
+interface EquipmentRequest {
+  equipmentId: string;
+  quantity: number;
+}
+
 export const RequestForm: React.FC<RequestFormProps> = ({ 
   equipment, 
   isOpen, 
   onClose 
 }) => {
-  const { currentUser, addRequest } = useInventory();
+  const { equipment: allEquipment, currentUser, addRequest } = useInventory();
   const [purpose, setPurpose] = useState('');
-  const [quantity, setQuantity] = useState(1);
   const [startDate, setStartDate] = useState<Date | undefined>(new Date());
   const [endDate, setEndDate] = useState<Date | undefined>(new Date());
+  const [selectedEquipment, setSelectedEquipment] = useState<EquipmentRequest[]>([]);
+
+  // Reset the form when it's opened or when initially provided equipment changes
+  useEffect(() => {
+    if (isOpen) {
+      setPurpose('');
+      setStartDate(new Date());
+      setEndDate(new Date());
+      
+      // Initialize with the equipment passed in props if any
+      if (equipment) {
+        setSelectedEquipment([{ equipmentId: equipment.id, quantity: 1 }]);
+      } else {
+        setSelectedEquipment([]);
+      }
+    }
+  }, [isOpen, equipment]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!equipment || !currentUser || !startDate || !endDate) return;
+    if (!currentUser || !startDate || !endDate || selectedEquipment.length === 0) {
+      toast({
+        title: "Missing information",
+        description: "Please fill in all required fields and select at least one equipment item.",
+        variant: "destructive"
+      });
+      return;
+    }
     
-    addRequest({
-      equipmentId: equipment.id,
-      userId: currentUser.id,
-      userName: currentUser.name,
-      purpose,
-      quantity,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString()
+    // Submit a request for each selected equipment
+    selectedEquipment.forEach(item => {
+      const equipItem = allEquipment.find(e => e.id === item.equipmentId);
+      if (!equipItem) return;
+      
+      addRequest({
+        equipmentId: item.equipmentId,
+        userId: currentUser.id,
+        userName: currentUser.name,
+        purpose,
+        quantity: item.quantity,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString()
+      });
     });
     
     // Reset form and close dialog
     setPurpose('');
-    setQuantity(1);
+    setSelectedEquipment([]);
     setStartDate(new Date());
     setEndDate(new Date());
     onClose();
@@ -74,42 +117,116 @@ export const RequestForm: React.FC<RequestFormProps> = ({
     }
   };
 
-  if (!equipment) return null;
+  // Filter to only show available equipment
+  const availableEquipment = allEquipment.filter(
+    item => item.status === 'available' && item.quantity > 0
+  );
+
+  // Add equipment to the selection
+  const handleAddEquipment = (equipmentId: string) => {
+    if (selectedEquipment.some(item => item.equipmentId === equipmentId)) {
+      return; // Already added
+    }
+    setSelectedEquipment([...selectedEquipment, { equipmentId, quantity: 1 }]);
+  };
+
+  // Remove equipment from the selection
+  const handleRemoveEquipment = (equipmentId: string) => {
+    setSelectedEquipment(selectedEquipment.filter(item => item.equipmentId !== equipmentId));
+  };
+
+  // Update quantity for a selected equipment
+  const handleQuantityChange = (equipmentId: string, quantity: number) => {
+    const equipItem = allEquipment.find(e => e.id === equipmentId);
+    if (!equipItem) return;
+    
+    // Ensure quantity is within bounds
+    const validQuantity = Math.min(Math.max(1, quantity), equipItem.quantity);
+    
+    setSelectedEquipment(
+      selectedEquipment.map(item => 
+        item.equipmentId === equipmentId 
+          ? { ...item, quantity: validQuantity } 
+          : item
+      )
+    );
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Request Equipment</DialogTitle>
           <DialogDescription>
-            Fill out this form to request {equipment.name}
+            Fill out this form to request equipment
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="equipment">Equipment</Label>
-            <Input 
-              id="equipment" 
-              value={equipment.name} 
-              disabled 
-              className="bg-gray-50"
-            />
+            <Label>Selected Equipment</Label>
+            {selectedEquipment.length > 0 ? (
+              <div className="space-y-2">
+                {selectedEquipment.map(item => {
+                  const equipItem = allEquipment.find(e => e.id === item.equipmentId);
+                  if (!equipItem) return null;
+                  
+                  return (
+                    <div key={item.equipmentId} className="flex items-center space-x-2 p-2 border rounded-md">
+                      <div className="flex-1">
+                        <div className="font-medium">{equipItem.name}</div>
+                        <div className="text-sm text-gray-500">Available: {equipItem.quantity}</div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Input 
+                          type="number" 
+                          min={1} 
+                          max={equipItem.quantity}
+                          value={item.quantity} 
+                          onChange={e => handleQuantityChange(item.equipmentId, Number(e.target.value))}
+                          className="w-16"
+                        />
+                        <Button 
+                          type="button" 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={() => handleRemoveEquipment(item.equipmentId)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="p-4 border border-dashed rounded-md text-center text-gray-500">
+                No equipment selected
+              </div>
+            )}
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="quantity">Quantity</Label>
-            <Input 
-              id="quantity" 
-              type="number" 
-              min={1} 
-              max={equipment.quantity}
-              value={quantity} 
-              onChange={e => setQuantity(Number(e.target.value))}
-              required 
-            />
-            <p className="text-sm text-gray-500">
-              Available: {equipment.quantity}
-            </p>
+            <Label htmlFor="add-equipment">Add Equipment</Label>
+            <Select onValueChange={handleAddEquipment}>
+              <SelectTrigger id="add-equipment">
+                <SelectValue placeholder="Select equipment to add..." />
+              </SelectTrigger>
+              <SelectContent>
+                {availableEquipment
+                  .filter(item => !selectedEquipment.some(selected => selected.equipmentId === item.id))
+                  .map(item => (
+                    <SelectItem key={item.id} value={item.id}>
+                      {item.name} ({item.quantity} available)
+                    </SelectItem>
+                  ))}
+                {availableEquipment.length === 0 || 
+                availableEquipment.length === selectedEquipment.length ? (
+                  <SelectItem value="none" disabled>
+                    No more equipment available
+                  </SelectItem>
+                ) : null}
+              </SelectContent>
+            </Select>
           </div>
           
           <div className="space-y-2">
@@ -195,7 +312,12 @@ export const RequestForm: React.FC<RequestFormProps> = ({
             >
               Cancel
             </Button>
-            <Button type="submit">Submit Request</Button>
+            <Button 
+              type="submit"
+              disabled={selectedEquipment.length === 0}
+            >
+              Submit Request{selectedEquipment.length > 1 ? 's' : ''}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
