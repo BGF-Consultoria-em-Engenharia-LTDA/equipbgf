@@ -108,6 +108,8 @@ export const sampleRequests: EquipmentRequest[] = [
     userId: 'user-002',
     userName: 'Jane Smith',
     requestDate: '2023-05-10T09:30:00Z',
+    startDate: '2023-05-15T09:00:00Z',
+    endDate: '2023-05-20T17:00:00Z',
     status: 'approved',
     purpose: 'Company event photography',
     quantity: 1
@@ -118,6 +120,8 @@ export const sampleRequests: EquipmentRequest[] = [
     userId: 'user-003',
     userName: 'Bob Johnson',
     requestDate: '2023-05-12T14:15:00Z',
+    startDate: '2023-05-18T09:00:00Z',
+    endDate: '2023-05-25T17:00:00Z',
     status: 'pending',
     purpose: 'Remote work setup',
     quantity: 1
@@ -128,6 +132,8 @@ export const sampleRequests: EquipmentRequest[] = [
     userId: 'user-002',
     userName: 'Jane Smith',
     requestDate: '2023-05-08T11:45:00Z',
+    startDate: '2023-05-10T09:00:00Z',
+    endDate: '2023-05-15T17:00:00Z',
     returnDate: '2023-05-15T16:30:00Z',
     status: 'returned',
     purpose: 'Client presentation',

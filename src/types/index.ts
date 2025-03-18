@@ -22,7 +22,9 @@ export interface EquipmentRequest {
   userId: string;
   userName: string;
   requestDate: string;
-  returnDate?: string;
+  startDate: string; // When they want to start using the equipment
+  endDate: string;   // When they plan to return the equipment
+  returnDate?: string; // Actual return date (may differ from planned end date)
   status: RequestStatus;
   purpose: string;
   quantity: number;

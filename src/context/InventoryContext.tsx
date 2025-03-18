@@ -80,7 +80,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     
     toast({
       title: "Request submitted",
-      description: "Your request has been submitted and is pending approval."
+      description: `Your request for ${newRequest.quantity} item(s) has been submitted and is pending approval.`
     });
   };
 
@@ -97,6 +97,8 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                 quantity: relatedEquipment.quantity + req.quantity
               });
             }
+            // Add actual return date when returned
+            return { ...req, status, returnDate: new Date().toISOString() };
           }
           
           // If status is 'approved', update equipment status to 'in-use'
