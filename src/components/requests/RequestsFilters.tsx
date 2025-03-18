@@ -15,8 +15,8 @@ import { RequestStatus } from '@/types';
 interface RequestsFiltersProps {
   searchTerm: string;
   onSearchChange: (value: string) => void;
-  statusFilter: RequestStatus | '';
-  onStatusFilterChange: (value: RequestStatus | '') => void;
+  statusFilter: RequestStatus | 'all';
+  onStatusFilterChange: (value: RequestStatus | 'all') => void;
   onClearFilters: () => void;
   totalResults: number;
   filtersActive: boolean;
@@ -44,7 +44,7 @@ export const RequestsFilters: React.FC<RequestsFiltersProps> = ({
           />
         </div>
         
-        <Select value={statusFilter} onValueChange={(value) => onStatusFilterChange(value as RequestStatus | '')}>
+        <Select value={statusFilter} onValueChange={(value) => onStatusFilterChange(value as RequestStatus | 'all')}>
           <SelectTrigger>
             <SelectValue placeholder="All Statuses" />
           </SelectTrigger>

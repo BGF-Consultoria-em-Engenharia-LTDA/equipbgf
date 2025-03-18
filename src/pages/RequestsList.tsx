@@ -49,7 +49,7 @@ const RequestsList: React.FC = () => {
 
   const clearFilters = () => {
     setSearchTerm('');
-    setStatusFilter('');
+    setStatusFilter('all');
   };
 
   const openRequestForm = () => {
