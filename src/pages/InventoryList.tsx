@@ -100,7 +100,7 @@ const InventoryList: React.FC = () => {
               <SelectValue placeholder="All Categories" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Categories</SelectItem>
+              <SelectItem value="all">All Categories</SelectItem>
               {categories.map(category => (
                 <SelectItem key={category} value={category}>
                   {category}
@@ -114,7 +114,7 @@ const InventoryList: React.FC = () => {
               <SelectValue placeholder="All Statuses" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Statuses</SelectItem>
+              <SelectItem value="all">All Statuses</SelectItem>
               <SelectItem value="available">Available</SelectItem>
               <SelectItem value="in-use">In Use</SelectItem>
               <SelectItem value="maintenance">Maintenance</SelectItem>
