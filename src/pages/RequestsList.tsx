@@ -10,7 +10,7 @@ import { RequestsTable } from '@/components/requests/RequestsTable';
 const RequestsList: React.FC = () => {
   const { requests, equipment, currentUser, updateRequestStatus } = useInventory();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<RequestStatus | ''>('');
+  const [statusFilter, setStatusFilter] = useState<RequestStatus | 'all'>('all');
   const [isRequestFormOpen, setIsRequestFormOpen] = useState(false);
   const [selectedEquipment, setSelectedEquipment] = useState<string | null>(null);
 
@@ -29,7 +29,7 @@ const RequestsList: React.FC = () => {
                            equipmentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            req.purpose.toLowerCase().includes(searchTerm.toLowerCase());
       
-      const matchesStatus = statusFilter === '' || statusFilter === 'all' ? true : req.status === statusFilter;
+      const matchesStatus = statusFilter === 'all' ? true : req.status === statusFilter;
       
       return matchesSearch && matchesStatus;
     });
@@ -74,7 +74,7 @@ const RequestsList: React.FC = () => {
         onStatusFilterChange={setStatusFilter}
         onClearFilters={clearFilters}
         totalResults={filteredRequests.length}
-        filtersActive={!!(searchTerm || statusFilter)}
+        filtersActive={!!(searchTerm || statusFilter !== 'all')}
       />
       
       <RequestsTable 
