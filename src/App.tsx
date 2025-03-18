@@ -11,6 +11,7 @@ import InventoryList from "./pages/InventoryList";
 import EquipmentDetail from "./pages/EquipmentDetail";
 import RequestsList from "./pages/RequestsList";
 import Users from "./pages/Users";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
               <Route path="/inventory/:id" element={<EquipmentDetail />} />
               <Route path="/requests" element={<RequestsList />} />
               <Route path="/users" element={<Users />} />
+              <Route path="/settings" element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
