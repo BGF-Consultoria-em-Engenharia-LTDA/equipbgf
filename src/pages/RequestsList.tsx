@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { 
   ClipboardList,
@@ -6,7 +5,8 @@ import {
   Check, 
   X, 
   Clock,
-  FilterX
+  FilterX,
+  FilePlus
 } from 'lucide-react';
 import {
   Table,
@@ -29,33 +29,30 @@ import {
 import { useInventory } from '@/context/InventoryContext';
 import { RequestStatus } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
+import { RequestForm } from '@/components/requests/RequestForm';
 
 const RequestsList: React.FC = () => {
   const { requests, equipment, currentUser, updateRequestStatus } = useInventory();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<RequestStatus | ''>('');
+  const [isRequestFormOpen, setIsRequestFormOpen] = useState(false);
+  const [selectedEquipment, setSelectedEquipment] = useState<string | null>(null);
 
-  // Determine whether to show all requests or just the user's requests
   const visibleRequests = useMemo(() => {
-    // Admins see all requests, users see only their requests
     return currentUser?.role === 'admin'
       ? requests
       : requests.filter(r => r.userId === currentUser?.id);
   }, [requests, currentUser]);
 
-  // Filter requests based on search term and status filter
   const filteredRequests = useMemo(() => {
     return visibleRequests.filter(req => {
-      // Get equipment name for search
       const equipmentItem = equipment.find(e => e.id === req.equipmentId);
       const equipmentName = equipmentItem?.name || '';
       
-      // Apply search filter
       const matchesSearch = req.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            equipmentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            req.purpose.toLowerCase().includes(searchTerm.toLowerCase());
       
-      // Apply status filter
       const matchesStatus = statusFilter ? req.status === statusFilter : true;
       
       return matchesSearch && matchesStatus;
@@ -94,18 +91,44 @@ const RequestsList: React.FC = () => {
     setStatusFilter('');
   };
 
+  const openRequestForm = () => {
+    if (equipment.length > 0) {
+      setSelectedEquipment(equipment[0].id);
+    }
+    setIsRequestFormOpen(true);
+  };
+
+  const closeRequestForm = () => {
+    setIsRequestFormOpen(false);
+  };
+
+  const selectedEquipmentObject = useMemo(() => {
+    if (!selectedEquipment) return null;
+    return equipment.find(item => item.id === selectedEquipment) || null;
+  }, [selectedEquipment, equipment]);
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold flex items-center">
-          <ClipboardList className="mr-2 h-6 w-6" />
-          Equipment Requests
-        </h1>
-        <p className="text-gray-500 mt-1">
-          {currentUser?.role === 'admin' 
-            ? 'Manage equipment requests from users' 
-            : 'View and manage your equipment requests'}
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center">
+            <ClipboardList className="mr-2 h-6 w-6" />
+            Equipment Requests
+          </h1>
+          <p className="text-gray-500 mt-1">
+            {currentUser?.role === 'admin' 
+              ? 'Manage equipment requests from users' 
+              : 'View and manage your equipment requests'}
+          </p>
+        </div>
+        
+        <Button 
+          onClick={openRequestForm}
+          className="flex items-center gap-2"
+        >
+          <FilePlus className="h-4 w-4" />
+          New Request
+        </Button>
       </div>
       
       <div className="bg-white p-4 rounded-lg shadow-sm">
@@ -237,6 +260,12 @@ const RequestsList: React.FC = () => {
           </Table>
         </div>
       </div>
+
+      <RequestForm 
+        equipment={selectedEquipmentObject} 
+        isOpen={isRequestFormOpen} 
+        onClose={closeRequestForm} 
+      />
     </div>
   );
 };
