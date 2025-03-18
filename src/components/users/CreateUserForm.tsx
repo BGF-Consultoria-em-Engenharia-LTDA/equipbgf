@@ -53,7 +53,15 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onOpenChange }) =
   });
 
   const onSubmit = (data: UserFormValues) => {
-    addUser(data);
+    // Ensure all required fields are present 
+    const newUser = {
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      role: data.role
+    };
+    
+    addUser(newUser);
     form.reset();
     onOpenChange(false);
     toast({
