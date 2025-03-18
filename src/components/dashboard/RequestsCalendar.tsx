@@ -37,21 +37,21 @@ export const RequestsCalendar: React.FC<RequestsCalendarProps> = ({
   }, [selectedDate, requests]);
 
   // Custom day rendering for the calendar
-  const renderDay = (day: Date) => {
+  const renderDay = (date: Date) => {
     const dayRequests = requests.filter(request => {
       const start = new Date(request.startDate);
       const end = new Date(request.endDate);
       
-      return isWithinInterval(day, { start, end }) ||
-             isSameDay(day, start) || 
-             isSameDay(day, end);
+      return isWithinInterval(date, { start, end }) ||
+             isSameDay(date, start) || 
+             isSameDay(date, end);
     });
     
     const hasRequests = dayRequests.length > 0;
     
     return (
       <div className={`relative p-2 w-full text-center ${hasRequests ? 'font-bold' : ''}`}>
-        {day.getDate()}
+        {date.getDate()}
         {hasRequests && (
           <div className="absolute bottom-0 left-0 right-0 flex justify-center">
             <div className="h-1 w-1 rounded-full bg-blue-500"></div>
@@ -74,12 +74,11 @@ export const RequestsCalendar: React.FC<RequestsCalendarProps> = ({
             onSelect={setSelectedDate}
             className="border rounded-md p-3 pointer-events-auto"
             components={{
-              Day: ({ day, ...props }) => (
+              Day: ({ date, ...props }) => (
                 <button
                   {...props}
-                  className={props.className}
                 >
-                  {renderDay(day)}
+                  {renderDay(date)}
                 </button>
               )
             }}
