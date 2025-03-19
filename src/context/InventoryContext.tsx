@@ -1,7 +1,8 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Equipment, EquipmentRequest, User } from '@/types';
 import { toast } from "@/components/ui/use-toast";
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 
 // Sample data
 import { sampleEquipment, sampleRequests, sampleUsers } from '@/data/sampleData';
