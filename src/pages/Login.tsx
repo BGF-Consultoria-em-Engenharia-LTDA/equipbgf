@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useInventory } from '@/context/inventory/InventoryContext';
 import { toast } from '@/components/ui/use-toast';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import CreateUserForm from '@/components/users/CreateUserForm';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, InfoIcon } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -31,6 +31,15 @@ const Login = () => {
 
       if (error) {
         setError(error.message);
+        
+        // Show instructions about email verification if needed
+        if (error.message.includes('verify your email')) {
+          toast({
+            title: "Email verification required",
+            description: "Check your inbox and verify your email before signing in.",
+            duration: 5000
+          });
+        }
       } else if (user) {
         toast({
           title: 'Login successful',
@@ -63,6 +72,15 @@ const Login = () => {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
+              
+              <Alert variant="default" className="mb-4 bg-blue-50 border-blue-200">
+                <InfoIcon className="h-4 w-4" />
+                <AlertTitle>For testing purposes</AlertTitle>
+                <AlertDescription className="text-sm">
+                  If you've just created a new account, you might need to disable email verification in the Supabase dashboard or use the default admin account below.
+                </AlertDescription>
+              </Alert>
+              
               <form onSubmit={handleLogin}>
                 <div className="space-y-4">
                   <div className="space-y-2">

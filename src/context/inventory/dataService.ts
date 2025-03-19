@@ -263,6 +263,14 @@ export const addUserToDb = async (newUser: Omit<User, 'id'>) => {
         }
       }
       
+      toast({
+        title: "User created successfully",
+        description: data.user.email_confirmed_at 
+          ? "You can now sign in with your credentials." 
+          : "Please check your email to confirm your account before signing in.",
+        duration: 5000
+      });
+      
       return true;
     }
     
@@ -282,6 +290,21 @@ export const signInUser = async (email: string, password: string) => {
     });
     
     if (error) {
+      // Check specific error types for better user feedback
+      if (error.message.includes('Email not confirmed')) {
+        return { 
+          error: new Error('Please verify your email address before signing in.'), 
+          user: null 
+        };
+      }
+      
+      if (error.message.includes('Invalid login credentials')) {
+        return { 
+          error: new Error('Invalid email or password. Please try again.'), 
+          user: null 
+        };
+      }
+      
       return { error, user: null };
     }
     
@@ -294,7 +317,15 @@ export const signInUser = async (email: string, password: string) => {
         .single();
         
       if (userError) {
-        return { error: userError, user: null };
+        console.error('Error fetching user data:', userError);
+        // If we can't get user data, allow login with basic user info
+        const basicUser: User = {
+          id: data.user.id,
+          name: data.user.user_metadata?.name || 'User',
+          email: data.user.email || '',
+          role: data.user.user_metadata?.role || 'user'
+        };
+        return { error: null, user: basicUser };
       }
         
       if (userData) {
@@ -310,6 +341,7 @@ export const signInUser = async (email: string, password: string) => {
     
     return { error: new Error('User not found'), user: null };
   } catch (error) {
+    console.error('Error signing in:', error);
     return { error, user: null };
   }
 };
