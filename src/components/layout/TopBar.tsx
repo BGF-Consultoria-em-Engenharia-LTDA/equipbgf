@@ -1,13 +1,17 @@
 
 import React from 'react';
-import { Menu, Bell, Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Menu, Bell, Search, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useInventory } from '@/context/InventoryContext';
+import { toast } from '@/components/ui/use-toast';
 
 export const TopBar: React.FC = () => {
-  const { currentUser } = useInventory();
+  const { currentUser, setCurrentUser } = useInventory();
+  const navigate = useNavigate();
   
   const userInitials = currentUser?.name
     ? currentUser.name
@@ -15,6 +19,15 @@ export const TopBar: React.FC = () => {
         .map((n) => n[0])
         .join('')
     : 'U';
+
+  const handleSignOut = () => {
+    setCurrentUser(null);
+    toast({
+      title: "Signed out",
+      description: "You have been successfully signed out."
+    });
+    navigate('/login');
+  };
 
   return (
     <div className="bg-white shadow-sm z-10">
@@ -45,15 +58,30 @@ export const TopBar: React.FC = () => {
               <span className="sr-only">View notifications</span>
             </Button>
             <div className="ml-3 relative">
-              <div className="flex items-center gap-3">
-                <span className="hidden md:block text-sm font-medium text-gray-700">
-                  {currentUser?.name}
-                </span>
-                <Avatar>
-                  <AvatarImage src={`https://ui-avatars.com/api/?name=${currentUser?.name}&background=random`} />
-                  <AvatarFallback>{userInitials}</AvatarFallback>
-                </Avatar>
-              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="flex items-center gap-3 p-0">
+                    <span className="hidden md:block text-sm font-medium text-gray-700">
+                      {currentUser?.name}
+                    </span>
+                    <Avatar>
+                      <AvatarImage src={`https://ui-avatars.com/api/?name=${currentUser?.name}&background=random`} />
+                      <AvatarFallback>{userInitials}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => navigate('/settings')}>
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-red-600" onSelect={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
