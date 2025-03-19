@@ -52,22 +52,31 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onOpenChange }) =
     },
   });
 
-  const onSubmit = (data: UserFormValues) => {
-    // Ensure all required fields are present 
-    const newUser = {
-      name: data.name,
-      email: data.email,
-      password: data.password,
-      role: data.role
-    };
-    
-    addUser(newUser);
-    form.reset();
-    onOpenChange(false);
-    toast({
-      title: "User created",
-      description: `${data.name} has been added to the system.`,
-    });
+  const onSubmit = async (data: UserFormValues) => {
+    try {
+      // Ensure all required fields are present 
+      const newUser = {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role: data.role
+      };
+      
+      await addUser(newUser);
+      form.reset();
+      onOpenChange(false);
+      toast({
+        title: "User created",
+        description: `${data.name} has been added to the system.`,
+      });
+    } catch (error) {
+      console.error('Error creating user:', error);
+      toast({
+        title: "Error creating user",
+        description: error instanceof Error ? error.message : "Unknown error occurred",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
