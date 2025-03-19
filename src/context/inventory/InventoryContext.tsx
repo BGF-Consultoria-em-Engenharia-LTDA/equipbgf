@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Equipment, EquipmentRequest, User, RequestStatus } from '@/types';
 import { toast } from "@/components/ui/use-toast";
@@ -17,7 +16,7 @@ import {
   signInUser,
   signOutUser,
   getCurrentSession
-} from './dataService';
+} from './services';
 import {
   getEquipmentById,
   getRequestsByEquipmentId,
@@ -36,19 +35,15 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch data based on current user
   const fetchData = async () => {
     if (currentUser) {
       try {
-        // Fetch equipment data
         const equipmentData = await fetchEquipmentData();
         setEquipment(equipmentData);
         
-        // Fetch requests data
         const requestsData = await fetchRequestsData();
         setRequests(requestsData);
         
-        // Fetch users data
         const usersData = await fetchUsersData();
         setUsers(usersData);
       } catch (error) {
@@ -59,13 +54,11 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           variant: "destructive"
         });
         
-        // Fall back to sample data if there's an error
         setEquipment(sampleEquipment);
         setRequests(sampleRequests);
         setUsers(sampleUsers);
       }
     } else {
-      // Use sample data when not authenticated
       setEquipment(sampleEquipment);
       setRequests(sampleRequests);
       setUsers(sampleUsers);
@@ -74,7 +67,6 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setIsLoading(false);
   };
 
-  // Check for existing session on component mount
   useEffect(() => {
     const checkSession = async () => {
       setIsLoading(true);
@@ -92,7 +84,6 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     
     checkSession();
     
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (event === 'SIGNED_IN' && session) {
@@ -129,7 +120,6 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   }, []);
 
-  // CRUD operations
   const addEquipment = async (newEquipment: Omit<Equipment, 'id'>) => {
     try {
       if (!currentUser) {
@@ -151,7 +141,6 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         variant: "destructive"
       });
       
-      // Fall back to client-side operation if offline or error
       const id = Math.random().toString(36).substr(2, 9);
       setEquipment([...equipment, { ...newEquipment, id }]);
     }
@@ -165,7 +154,6 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       
       await updateEquipmentInDb(id, updatedEquipment);
       
-      // Update local state
       setEquipment(
         equipment.map((item) =>
           item.id === id ? { ...item, ...updatedEquipment } : item
@@ -184,7 +172,6 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         variant: "destructive"
       });
       
-      // Fall back to client-side operation if offline or error
       setEquipment(
         equipment.map((item) =>
           item.id === id ? { ...item, ...updatedEquipment } : item
@@ -201,7 +188,6 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       
       await deleteEquipmentFromDb(id);
       
-      // Update local state
       setEquipment(equipment.filter((item) => item.id !== id));
       
       toast({
@@ -216,7 +202,6 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         variant: "destructive"
       });
       
-      // Fall back to client-side operation if offline or error
       setEquipment(equipment.filter((item) => item.id !== id));
     }
   };
@@ -242,7 +227,6 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         variant: "destructive"
       });
       
-      // Fall back to client-side operation if offline or error
       const id = Math.random().toString(36).substr(2, 9);
       const requestDate = new Date().toISOString();
       setRequests([
@@ -260,13 +244,11 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       
       await updateRequestStatusInDb(id, status);
       
-      // Update local state
       setRequests(
         requests.map((req) => {
           if (req.id === id) {
             const updatedReq = { ...req, status };
             
-            // If status is 'returned', update equipment status to 'available'
             if (status === 'returned') {
               const relatedEquipment = equipment.find(e => e.id === req.equipmentId);
               if (relatedEquipment) {
@@ -275,11 +257,9 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                   quantity: relatedEquipment.quantity + req.quantity
                 });
               }
-              // Add actual return date when returned
               updatedReq.returnDate = new Date().toISOString();
             }
             
-            // If status is 'approved', update equipment status to 'in-use'
             if (status === 'approved') {
               const relatedEquipment = equipment.find(e => e.id === req.equipmentId);
               if (relatedEquipment) {
@@ -308,11 +288,9 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         variant: "destructive"
       });
       
-      // Fall back to client-side operation if offline or error
       setRequests(
         requests.map((req) => {
           if (req.id === id) {
-            // If status is 'returned', update equipment status to 'available'
             if (status === 'returned') {
               const relatedEquipment = equipment.find(e => e.id === req.equipmentId);
               if (relatedEquipment) {
@@ -321,11 +299,9 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
                   quantity: relatedEquipment.quantity + req.quantity
                 });
               }
-              // Add actual return date when returned
               return { ...req, status, returnDate: new Date().toISOString() };
             }
             
-            // If status is 'approved', update equipment status to 'in-use'
             if (status === 'approved') {
               const relatedEquipment = equipment.find(e => e.id === req.equipmentId);
               if (relatedEquipment) {
@@ -351,7 +327,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
       
       await addUserToDb(newUser);
-      await fetchData(); // Refresh the users list
+      await fetchData();
       
       toast({
         title: "User added",
@@ -365,7 +341,6 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         variant: "destructive"
       });
       
-      // Fall back to client-side operation if offline or error
       const id = Math.random().toString(36).substr(2, 9);
       setUsers([...users, { ...newUser, id }]);
     }
