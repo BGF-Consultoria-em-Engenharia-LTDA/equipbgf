@@ -3,6 +3,57 @@ import { User } from '@/types';
 import { supabase } from '@/lib/supabase';
 import { toast } from "@/components/ui/use-toast";
 
+// Sign up user with Supabase
+export const signUpUser = async (email: string, password: string, name: string) => {
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { 
+          name,
+          role: 'user' // Default role for new users
+        }
+      }
+    });
+    
+    if (error) {
+      // Check specific error types for better user feedback
+      if (error.message.includes('email already registered')) {
+        return { 
+          error: new Error('This email is already registered. Please try signing in instead.'), 
+          user: null 
+        };
+      }
+      
+      return { error, user: null };
+    }
+    
+    if (data && data.user) {
+      // Basic user information after signup
+      // The actual user profile will be created by a database trigger
+      const basicUser: User = {
+        id: data.user.id,
+        name: name,
+        email: data.user.email || '',
+        role: 'user'
+      };
+      
+      return { 
+        error: null, 
+        user: basicUser,
+        // Indicate if email confirmation is needed
+        emailConfirmationRequired: !data.user.email_confirmed_at
+      };
+    }
+    
+    return { error: new Error('Signup failed'), user: null };
+  } catch (error) {
+    console.error('Error signing up:', error);
+    return { error, user: null };
+  }
+};
+
 // Sign in user with Supabase
 export const signInUser = async (email: string, password: string) => {
   try {

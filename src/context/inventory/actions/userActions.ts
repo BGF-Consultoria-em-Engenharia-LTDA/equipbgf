@@ -1,7 +1,7 @@
 
 import { User } from '@/types';
 import { toast } from "@/components/ui/use-toast";
-import { addUserToDb, signInUser, signOutUser } from '../services';
+import { addUserToDb, signInUser, signOutUser, signUpUser } from '../services';
 
 export const createUserActions = (
   users: User[],
@@ -40,6 +40,10 @@ export const createUserActions = (
     return await signInUser(email, password);
   };
 
+  const signUp = async (email: string, password: string, name: string) => {
+    return await signUpUser(email, password, name);
+  };
+
   const signOut = async () => {
     await signOutUser();
     setCurrentUser(null);
@@ -49,6 +53,7 @@ export const createUserActions = (
   return {
     addUser,
     signIn,
+    signUp,
     signOut
   };
 };

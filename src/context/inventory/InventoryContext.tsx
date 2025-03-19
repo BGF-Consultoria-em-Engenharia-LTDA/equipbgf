@@ -61,6 +61,7 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setCurrentUser,
     addUser: userActions.addUser,
     signIn: userActions.signIn,
+    signUp: userActions.signUp,
     signOut: userActions.signOut,
     isLoading
   };

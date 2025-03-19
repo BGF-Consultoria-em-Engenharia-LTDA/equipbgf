@@ -17,6 +17,7 @@ export interface InventoryContextType {
   setCurrentUser: (user: User | null) => void;
   addUser: (user: Omit<User, 'id'>) => void;
   signIn: (email: string, password: string) => Promise<{ error: any | null, user: User | null }>;
+  signUp: (email: string, password: string, name: string) => Promise<{ error: any | null, user: User | null, emailConfirmationRequired?: boolean }>;
   signOut: () => Promise<void>;
   isLoading: boolean;
 }
