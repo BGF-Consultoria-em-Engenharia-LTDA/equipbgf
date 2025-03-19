@@ -18,7 +18,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { RequestForm } from '@/components/requests/RequestForm';
-import { useInventory } from '@/context/InventoryContext';
+import { useInventory } from '@/context/inventory/InventoryContext';
 import { formatDistanceToNow, format } from 'date-fns';
 
 const EquipmentDetail: React.FC = () => {

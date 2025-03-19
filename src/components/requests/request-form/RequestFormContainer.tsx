@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from "@/components/ui/use-toast";
 import { Equipment } from '@/types';
-import { useInventory } from '@/context/InventoryContext';
+import { useInventory } from '@/context/inventory/InventoryContext';
 import { EquipmentSelector } from './EquipmentSelector';
 import { DateRangePicker } from './DateRangePicker';
 import { PurposeField } from './PurposeField';

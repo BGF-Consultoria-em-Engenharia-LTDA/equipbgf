@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { useInventory } from '@/context/InventoryContext';
+import { useInventory } from '@/context/inventory/InventoryContext';
 
 export const TopBar: React.FC = () => {
   const { currentUser, signOut } = useInventory();

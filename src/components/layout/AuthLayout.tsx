@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useInventory } from '@/context/InventoryContext';
+import { useInventory } from '@/context/inventory/InventoryContext';
 import { Loader2 } from 'lucide-react';
 
 export const AuthLayout: React.FC = () => {

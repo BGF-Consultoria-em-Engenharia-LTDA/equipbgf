@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/select';
 import { EquipmentGrid } from '@/components/inventory/EquipmentGrid';
 import { RequestForm } from '@/components/requests/RequestForm';
-import { useInventory } from '@/context/InventoryContext';
+import { useInventory } from '@/context/inventory/InventoryContext';
 import { Equipment, EquipmentStatus } from '@/types';
 
 const InventoryList: React.FC = () => {

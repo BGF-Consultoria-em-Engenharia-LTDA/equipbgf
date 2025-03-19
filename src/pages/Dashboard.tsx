@@ -4,7 +4,7 @@ import { Package2, ClipboardList, AlertCircle, CheckCircle2 } from 'lucide-react
 import { StatCard } from '@/components/dashboard/StatCard';
 import { RecentRequestsTable } from '@/components/dashboard/RecentRequestsTable';
 import { RequestsCalendar } from '@/components/dashboard/RequestsCalendar';
-import { useInventory } from '@/context/InventoryContext';
+import { useInventory } from '@/context/inventory/InventoryContext';
 
 const Dashboard: React.FC = () => {
   const { equipment, requests, currentUser } = useInventory();

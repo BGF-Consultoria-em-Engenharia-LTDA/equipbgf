@@ -13,7 +13,7 @@ import {
   TabsList,
   TabsTrigger
 } from '@/components/ui/tabs';
-import { useInventory } from '@/context/InventoryContext';
+import { useInventory } from '@/context/inventory/InventoryContext';
 
 const Settings = () => {
   const { currentUser } = useInventory();

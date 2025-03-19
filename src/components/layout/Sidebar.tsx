@@ -3,7 +3,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Home, Package, ClipboardList, Users, Settings } from 'lucide-react';
-import { useInventory } from '@/context/InventoryContext';
+import { useInventory } from '@/context/inventory/InventoryContext';
 
 export const Sidebar: React.FC = () => {
   const { currentUser } = useInventory();

@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { useInventory } from '@/context/InventoryContext';
+import { useInventory } from '@/context/inventory/InventoryContext';
 import { RequestStatus } from '@/types';
 import { RequestForm } from '@/components/requests/RequestForm';
 import { RequestsHeader } from '@/components/requests/RequestsHeader';
