@@ -1,42 +1,19 @@
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { Package2, ClipboardList, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { RecentRequestsTable } from '@/components/dashboard/RecentRequestsTable';
 import { RequestsCalendar } from '@/components/dashboard/RequestsCalendar';
 import { useInventory } from '@/context/inventory/InventoryContext';
+import { useDashboardStats } from '@/hooks/useDashboardStats';
+import { useVisibleRequests } from '@/hooks/useVisibleRequests';
 
 const Dashboard: React.FC = () => {
   const { equipment, requests, currentUser } = useInventory();
-
-  // Calculate statistics
-  const stats = useMemo(() => {
-    const totalEquipment = equipment.length;
-    const availableEquipment = equipment.filter(e => e.status === 'available').length;
-    const pendingRequests = requests.filter(r => r.status === 'pending').length;
-    
-    // For admin, show all requests
-    // For regular users, show only their requests
-    const userRequests = currentUser?.role === 'admin'
-      ? requests
-      : requests.filter(r => r.userId === currentUser?.id);
-      
-    const approvedRequests = userRequests.filter(r => r.status === 'approved').length;
-    
-    return {
-      totalEquipment,
-      availableEquipment,
-      pendingRequests,
-      approvedRequests
-    };
-  }, [equipment, requests, currentUser]);
-
-  // Filter requests based on user role
-  const visibleRequests = useMemo(() => {
-    return currentUser?.role === 'admin'
-      ? requests
-      : requests.filter(r => r.userId === currentUser?.id);
-  }, [requests, currentUser]);
+  
+  // Use custom hooks to calculate stats and filter requests
+  const stats = useDashboardStats(equipment, requests, currentUser);
+  const visibleRequests = useVisibleRequests(requests, currentUser);
 
   return (
     <div className="space-y-6">
