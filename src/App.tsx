@@ -14,6 +14,7 @@ import RequestsList from "./pages/RequestsList";
 import Users from "./pages/Users";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            {/* Public routes */}
+            <Route path="/login" element={<Login />} />
+            
             {/* Protected routes */}
             <Route element={<AuthLayout />}>
               <Route element={<MainLayout />}>

@@ -1,11 +1,12 @@
 
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { useInventory } from '@/context/inventory/InventoryContext';
 
 export const AuthLayout: React.FC = () => {
-  const { isLoading } = useInventory();
+  const { currentUser, isLoading } = useInventory();
+  const location = useLocation();
 
   // Show a loading spinner while checking auth state
   if (isLoading) {
@@ -16,6 +17,11 @@ export const AuthLayout: React.FC = () => {
     );
   }
 
-  // Always render the outlet without checking for authentication
+  // If user is not logged in, redirect to login page
+  if (!currentUser) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // If the user is logged in, render the outlet (child routes)
   return <Outlet />;
 };
