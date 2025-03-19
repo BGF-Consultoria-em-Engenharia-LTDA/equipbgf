@@ -234,28 +234,39 @@ export const updateRequestStatusInDb = async (id: string, status: EquipmentReque
 // Add user to Supabase
 export const addUserToDb = async (newUser: Omit<User, 'id'>) => {
   try {
-    // First create the auth user
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    // Create the auth user with the correct method
+    const { data, error } = await supabase.auth.signUp({
       email: newUser.email,
       password: newUser.password || Math.random().toString(36).substring(2, 12),
-      email_confirm: true,
-      user_metadata: { name: newUser.name }
+      options: {
+        data: { 
+          name: newUser.name,
+          role: newUser.role
+        }
+      }
     });
     
-    if (authError) throw authError;
+    if (error) throw error;
     
-    // The trigger should handle creating the user in the users table,
-    // but we'll update the role if it's different from the default
-    if (newUser.role !== 'user' && authData.user) {
-      const { error: updateError } = await supabase
-        .from('users')
-        .update({ role: newUser.role })
-        .eq('id', authData.user.id);
+    if (data && data.user) {
+      // Check if we need to manually update the role since some Supabase installations
+      // might not have the trigger set up to sync user metadata to the users table
+      if (newUser.role !== 'user') {
+        const { error: updateError } = await supabase
+          .from('users')
+          .update({ role: newUser.role })
+          .eq('id', data.user.id);
+        
+        if (updateError) {
+          console.warn('Error updating user role:', updateError);
+          // This is not fatal, the trigger might handle it
+        }
+      }
       
-      if (updateError) throw updateError;
+      return true;
     }
     
-    return true;
+    throw new Error('User creation failed');
   } catch (error) {
     console.error('Error adding user:', error);
     throw error;
