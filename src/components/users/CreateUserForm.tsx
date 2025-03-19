@@ -126,7 +126,7 @@ const CreateUserForm: React.FC<CreateUserFormProps> = ({ open, onOpenChange }) =
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input placeholder="******" type="password" {...field} />
+                    <Input placeholder="Enter password (min. 6 characters)" type="password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
