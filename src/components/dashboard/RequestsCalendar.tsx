@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { EquipmentRequest } from '@/types';
 import { addDays, isSameDay, isWithinInterval } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { useInventory } from '@/context/InventoryContext';
+import { useInventory } from '@/context/inventory/InventoryContext';
 import { Badge } from '@/components/ui/badge';
 
 interface RequestsCalendarProps {
