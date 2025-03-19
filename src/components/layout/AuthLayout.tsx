@@ -1,11 +1,21 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useInventory } from '@/context/InventoryContext';
+import { Loader2 } from 'lucide-react';
 
 export const AuthLayout: React.FC = () => {
-  const { currentUser } = useInventory();
+  const { currentUser, isLoading } = useInventory();
   const location = useLocation();
+
+  // Show a loading spinner while checking auth state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   // If user is not logged in, redirect to login page
   if (!currentUser) {

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Equipment, EquipmentRequest, User } from '@/types';
 import { toast } from "@/components/ui/use-toast";
+import { supabase } from '@/lib/supabase';
 
 // Sample data
 import { sampleEquipment, sampleRequests, sampleUsers } from '@/data/sampleData';
@@ -20,6 +21,9 @@ interface InventoryContextType {
   getRequestsByUserId: (userId: string) => EquipmentRequest[];
   setCurrentUser: (user: User | null) => void;
   addUser: (user: Omit<User, 'id'>) => void;
+  signIn: (email: string, password: string) => Promise<{ error: any | null, user: User | null }>;
+  signOut: () => Promise<void>;
+  isLoading: boolean;
 }
 
 const InventoryContext = createContext<InventoryContextType | undefined>(undefined);
@@ -29,17 +33,114 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [requests, setRequests] = useState<EquipmentRequest[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize with sample data
+  // Check for existing session on component mount
   useEffect(() => {
-    setEquipment(sampleEquipment);
-    setRequests(sampleRequests);
-    setUsers(sampleUsers);
+    const checkSession = async () => {
+      setIsLoading(true);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session) {
+          const { data } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+            
+          if (data) {
+            setCurrentUser(data as User);
+          }
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+      } finally {
+        // For now, also load sample data
+        setEquipment(sampleEquipment);
+        setRequests(sampleRequests);
+        setUsers(sampleUsers);
+        setIsLoading(false);
+      }
+    };
     
-    // Set a default user (for demo purposes)
-    setCurrentUser(sampleUsers[0]);
+    checkSession();
+    
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          const { data } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+            
+          if (data) {
+            setCurrentUser(data as User);
+          }
+        } else if (event === 'SIGNED_OUT') {
+          setCurrentUser(null);
+        }
+      }
+    );
+    
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
+  // Auth methods
+  const signIn = async (email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) {
+        return { error, user: null };
+      }
+      
+      if (data.user) {
+        // Get user details from our users table
+        const { data: userData } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', data.user.id)
+          .single();
+          
+        if (userData) {
+          setCurrentUser(userData as User);
+          return { error: null, user: userData as User };
+        }
+      }
+      
+      return { error: new Error('User not found'), user: null };
+    } catch (error) {
+      return { error, user: null };
+    }
+  };
+  
+  const signOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      setCurrentUser(null);
+      toast({
+        title: "Signed out",
+        description: "You have been successfully signed out."
+      });
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: "Error",
+        description: "An error occurred while signing out.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Keep existing CRUD functions
   const addEquipment = (newEquipment: Omit<Equipment, 'id'>) => {
     const id = Math.random().toString(36).substr(2, 9);
     setEquipment([...equipment, { ...newEquipment, id }]);
@@ -159,7 +260,10 @@ export const InventoryProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     getRequestsByEquipmentId,
     getRequestsByUserId,
     setCurrentUser,
-    addUser
+    addUser,
+    signIn,
+    signOut,
+    isLoading
   };
 
   return (

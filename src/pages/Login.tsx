@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label';
 import { useInventory } from '@/context/InventoryContext';
 import { toast } from '@/components/ui/use-toast';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { User } from '@/types';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -16,33 +15,32 @@ const Login = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   
-  const { users, setCurrentUser } = useInventory();
+  const { signIn } = useInventory();
   const navigate = useNavigate();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
-    // Simulate authentication delay
-    setTimeout(() => {
-      // Find the user with matching email and password
-      const user = users.find(
-        (user: User) => user.email === email && user.password === password
-      );
+    try {
+      const { error, user } = await signIn(email, password);
 
-      if (user) {
-        setCurrentUser(user);
+      if (error) {
+        setError(error.message);
+      } else if (user) {
         toast({
           title: 'Login successful',
           description: `Welcome back, ${user.name}!`,
         });
         navigate('/');
-      } else {
-        setError('Invalid email or password');
       }
+    } catch (err) {
+      setError('An unexpected error occurred');
+      console.error(err);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

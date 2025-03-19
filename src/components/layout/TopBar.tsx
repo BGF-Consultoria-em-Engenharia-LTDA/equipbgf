@@ -7,10 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useInventory } from '@/context/InventoryContext';
-import { toast } from '@/components/ui/use-toast';
 
 export const TopBar: React.FC = () => {
-  const { currentUser, setCurrentUser } = useInventory();
+  const { currentUser, signOut } = useInventory();
   const navigate = useNavigate();
   
   const userInitials = currentUser?.name
@@ -20,12 +19,8 @@ export const TopBar: React.FC = () => {
         .join('')
     : 'U';
 
-  const handleSignOut = () => {
-    setCurrentUser(null);
-    toast({
-      title: "Signed out",
-      description: "You have been successfully signed out."
-    });
+  const handleSignOut = async () => {
+    await signOut();
     navigate('/login');
   };
 
