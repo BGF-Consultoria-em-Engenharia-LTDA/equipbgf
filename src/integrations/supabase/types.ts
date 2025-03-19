@@ -9,7 +9,129 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      equipment: {
+        Row: {
+          category: string
+          description: string | null
+          id: string
+          image: string | null
+          last_maintenance: string | null
+          location: string
+          name: string
+          purchase_date: string | null
+          quantity: number
+          serial_number: string | null
+          status: string
+        }
+        Insert: {
+          category: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          last_maintenance?: string | null
+          location: string
+          name: string
+          purchase_date?: string | null
+          quantity?: number
+          serial_number?: string | null
+          status: string
+        }
+        Update: {
+          category?: string
+          description?: string | null
+          id?: string
+          image?: string | null
+          last_maintenance?: string | null
+          location?: string
+          name?: string
+          purchase_date?: string | null
+          quantity?: number
+          serial_number?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      equipment_requests: {
+        Row: {
+          end_date: string
+          equipment_id: string
+          id: string
+          purpose: string
+          quantity: number
+          request_date: string
+          return_date: string | null
+          start_date: string
+          status: string
+          user_id: string
+          user_name: string
+        }
+        Insert: {
+          end_date: string
+          equipment_id: string
+          id?: string
+          purpose: string
+          quantity?: number
+          request_date?: string
+          return_date?: string | null
+          start_date: string
+          status: string
+          user_id: string
+          user_name: string
+        }
+        Update: {
+          end_date?: string
+          equipment_id?: string
+          id?: string
+          purpose?: string
+          quantity?: number
+          request_date?: string
+          return_date?: string | null
+          start_date?: string
+          status?: string
+          user_id?: string
+          user_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "equipment_requests_equipment_id_fkey"
+            columns: ["equipment_id"]
+            isOneToOne: false
+            referencedRelation: "equipment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "equipment_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          name: string
+          role: string
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          name: string
+          role: string
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          role?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
